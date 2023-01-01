@@ -1,4 +1,7 @@
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itclj.ItcljApplication;
 import com.itclj.dao.bean.User;
 import com.itclj.dao.mapper.UserMapper;
@@ -18,6 +21,9 @@ public class ItcljTest {
     @Resource
     private UserMapper userMapper;
 
+    /**
+     * 全量查询
+     */
     @Test
     public void testSelect() {
         System.out.println(("----- selectAll method test ------"));
@@ -28,17 +34,48 @@ public class ItcljTest {
         });
     }
 
+    /**
+     * 按email查询
+     */
     @Test
-    public void testAdd() {
-        User user = new User();
-        user.setAge(1);
-        user.setEmail("itclj003@test.com");
-        user.setName("itclj3");
-        int num = userMapper.insert(user);
-        System.out.println(num + JSON.toJSONString(user));
-
+    public void testQueryByEmail() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("email", "itclj960@test.com");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(obj -> System.out.println(JSON.toJSONString(obj)));
     }
 
+    /**
+     * 分页查询
+     */
+    @Test
+    public void testQueryPage() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.ge("id", 20);//id >= 20
+
+        Page<User> userPage = new Page<>(1, 4);
+        Page<User> userResult = userMapper.selectPage(userPage, userQueryWrapper);
+        System.out.println(JSON.toJSONString(userResult));
+    }
+
+    /**
+     * 批量添加
+     */
+    @Test
+    public void testAdd() {
+        for (int n = 0; n < 1000; n++) {
+            User user = new User();
+            user.setAge(n);
+            user.setEmail("itclj" + n + "@test.com");
+            user.setName("itclj" + n);
+            int num = userMapper.insert(user);
+            System.out.println(num + JSON.toJSONString(user));
+        }
+    }
+
+    /**
+     * 按id删除
+     */
     @Test
     public void testDel() {
         Integer id = 6;
@@ -46,6 +83,9 @@ public class ItcljTest {
         System.out.println(num);
     }
 
+    /**
+     * 按id更新
+     */
     @Test
     public void testEdit() {
         User user = new User();
